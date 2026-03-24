@@ -1,3 +1,5 @@
+import { createServiceClient } from "@/lib/supabase/service";
+
 type StatCardProps = {
     title: string;
     value: string | number;
@@ -24,12 +26,26 @@ function StatCard({ title, value, description }: StatCardProps) {
     );
 }
 
-export default function AdminPage() {
+export default async function AdminPage() {
+    const admin = createServiceClient();
+
+    const [{ data: usersData }, profilesRes, imagesRes, captionsRes] = await Promise.all([
+        admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+        admin.from("profiles").select("*", { count: "exact", head: true }),
+        admin.from("images").select("*", { count: "exact", head: true }),
+        admin.from("captions").select("*", { count: "exact", head: true }),
+    ]);
+
+    const totalUsers = usersData?.users?.length ?? 0;
+    const totalProfiles = profilesRes.count ?? 0;
+    const totalImages = imagesRes.count ?? 0;
+    const totalCaptions = captionsRes.count ?? 0;
+
     const stats = [
-        { title: "Total Users", value: 0, description: "Users in the system" },
-        { title: "Total Profiles", value: 0, description: "Profiles table rows" },
-        { title: "Total Images", value: 0, description: "Uploaded images" },
-        { title: "Total Captions", value: 0, description: "Saved captions" },
+        { title: "Total Users", value: totalUsers, description: "Auth users" },
+        { title: "Total Profiles", value: totalProfiles, description: "Profiles table rows" },
+        { title: "Total Images", value: totalImages, description: "Uploaded images" },
+        { title: "Total Captions", value: totalCaptions, description: "Saved captions" },
     ];
 
     return (
@@ -43,20 +59,15 @@ export default function AdminPage() {
         >
             <h1 style={{ fontSize: "36px", marginBottom: "12px" }}>Admin Dashboard</h1>
             <p style={{ fontSize: "18px", color: "#555", marginBottom: "32px" }}>
-                This page will later show real statistics from Supabase.
+                Real statistics from the database.
             </p>
-
-            <div style={{ display: "flex", gap: "12px", marginBottom: "24px" }}>
-                <a href="/admin/profiles">Profiles</a>
-                <a href="/admin/images">Images</a>
-                <a href="/admin/captions">Captions</a>
-            </div>
 
             <div
                 style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
                     gap: "20px",
+                    marginBottom: "32px",
                 }}
             >
                 {stats.map((stat) => (
