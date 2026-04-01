@@ -2,26 +2,33 @@ import Link from "next/link";
 
 export default function HomePage() {
     return (
-        <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
-            <h1 style={{ fontSize: "32px", marginBottom: "16px" }}>Week 6 Admin Area</h1>
-            <p style={{ fontSize: "18px", marginBottom: "24px" }}>
-                This app is the admin area for the database.
+        <main style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+            padding: "40px",
+            fontFamily: "Arial, sans-serif",
+        }}>
+            <h1 style={{ fontSize: "36px", marginBottom: "12px" }}>Admin Panel</h1>
+            <p style={{ fontSize: "16px", color: "var(--muted)", marginBottom: "32px" }}>
+                Database administration for the staging environment.
             </p>
 
-            <div style={{ display: "flex", gap: "12px" }}>
-                <Link
-                    href="/admin"
-                    style={{
-                        padding: "12px 20px",
-                        backgroundColor: "#111",
-                        color: "white",
-                        textDecoration: "none",
-                        borderRadius: "8px",
-                    }}
-                >
-                    Open Admin Area
-                </Link>
-            </div>
+            <Link
+                href="/admin"
+                style={{
+                    padding: "12px 24px",
+                    backgroundColor: "var(--accent, #3b82f6)",
+                    color: "white",
+                    textDecoration: "none",
+                    borderRadius: "8px",
+                    fontWeight: 500,
+                }}
+            >
+                Open Admin Area
+            </Link>
         </main>
     );
 }

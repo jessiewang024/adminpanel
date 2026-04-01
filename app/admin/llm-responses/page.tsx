@@ -1,27 +1,28 @@
 import { createServiceClient } from "@/lib/supabase/service";
 
 /**
- * Captions page — READ only.
- * Displays the most recent 100 captions from the database.
+ * LLM Responses page — READ only.
+ * Shows the raw responses from LLM API calls.
+ * Useful for debugging what the AI actually returned.
  */
-export default async function CaptionsPage() {
+export default async function LlmResponsesPage() {
     const admin = createServiceClient();
 
-    const { data: captions, error } = await admin
-        .from("captions")
+    const { data: responses, error } = await admin
+        .from("llm_model_responses")
         .select("*")
         .limit(100);
 
     return (
         <div>
-            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>Captions</h1>
+            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>LLM Responses</h1>
             <p style={{ color: "var(--muted)", marginBottom: "20px" }}>
-                Showing up to 100 captions (read-only). Total shown: {captions?.length ?? 0}
+                Read-only log of LLM API responses. Showing {responses?.length ?? 0} rows.
             </p>
 
             {error && (
                 <p style={{ color: "var(--danger)", marginBottom: "16px" }}>
-                    Error loading captions: {error.message}
+                    Error: {error.message}
                 </p>
             )}
 
@@ -29,31 +30,31 @@ export default async function CaptionsPage() {
                 <thead>
                     <tr>
                         <th style={thStyle}>ID</th>
-                        <th style={thStyle}>Image ID</th>
-                        <th style={thStyle}>Caption</th>
+                        <th style={thStyle}>Model</th>
+                        <th style={thStyle}>Prompt Chain ID</th>
+                        <th style={thStyle}>Response</th>
+                        <th style={thStyle}>Processing (s)</th>
                         <th style={thStyle}>Created</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {captions?.map((c: any) => (
-                        <tr key={c.id}>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.id}
+                    {responses?.map((r: any) => (
+                        <tr key={r.id}>
+                            <td style={monoTdStyle}>{r.id}</td>
+                            <td style={tdStyle}>{r.llm_model_id ?? r.model ?? "—"}</td>
+                            <td style={monoTdStyle}>{r.llm_prompt_chain_id ?? "—"}</td>
+                            <td style={{ ...tdStyle, maxWidth: "300px" }}>
+                                {r.llm_model_response ?? "—"}
                             </td>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.image_id}
-                            </td>
-                            <td style={{ ...tdStyle, maxWidth: "400px" }}>
-                                {c.content ?? "—"}
-                            </td>
+                            <td style={tdStyle}>{r.processing_time_seconds ?? "—"}</td>
                             <td style={tdStyle}>
-                                {c.created_datetime_utc ? new Date(c.created_datetime_utc).toLocaleDateString() : "—"}
+                                {r.created_datetime_utc ? new Date(r.created_datetime_utc).toLocaleDateString() : "—"}
                             </td>
                         </tr>
                     ))}
-                    {(!captions || captions.length === 0) && !error && (
+                    {(!responses || responses.length === 0) && !error && (
                         <tr>
-                            <td style={tdStyle} colSpan={4}>No captions found.</td>
+                            <td style={tdStyle} colSpan={6}>No LLM responses found.</td>
                         </tr>
                     )}
                 </tbody>
@@ -89,4 +90,10 @@ const tdStyle: React.CSSProperties = {
     textAlign: "left",
     padding: "10px 14px",
     fontSize: "13px",
+};
+
+const monoTdStyle: React.CSSProperties = {
+    ...tdStyle,
+    fontSize: "11px",
+    fontFamily: "monospace",
 };

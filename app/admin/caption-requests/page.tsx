@@ -1,27 +1,29 @@
 import { createServiceClient } from "@/lib/supabase/service";
 
 /**
- * Captions page — READ only.
- * Displays the most recent 100 captions from the database.
+ * Caption Requests page — READ only.
+ * Shows all the requests users have made to generate captions.
+ * Each request is linked to an image and a humor flavor.
  */
-export default async function CaptionsPage() {
+export default async function CaptionRequestsPage() {
     const admin = createServiceClient();
 
-    const { data: captions, error } = await admin
-        .from("captions")
+    // Fetch up to 100 caption requests
+    const { data: requests, error } = await admin
+        .from("caption_requests")
         .select("*")
         .limit(100);
 
     return (
         <div>
-            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>Captions</h1>
+            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>Caption Requests</h1>
             <p style={{ color: "var(--muted)", marginBottom: "20px" }}>
-                Showing up to 100 captions (read-only). Total shown: {captions?.length ?? 0}
+                Read-only view of caption generation requests. Showing {requests?.length ?? 0} rows.
             </p>
 
             {error && (
                 <p style={{ color: "var(--danger)", marginBottom: "16px" }}>
-                    Error loading captions: {error.message}
+                    Error: {error.message}
                 </p>
             )}
 
@@ -30,30 +32,24 @@ export default async function CaptionsPage() {
                     <tr>
                         <th style={thStyle}>ID</th>
                         <th style={thStyle}>Image ID</th>
-                        <th style={thStyle}>Caption</th>
+                        <th style={thStyle}>Profile ID</th>
                         <th style={thStyle}>Created</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {captions?.map((c: any) => (
-                        <tr key={c.id}>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.id}
-                            </td>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.image_id}
-                            </td>
-                            <td style={{ ...tdStyle, maxWidth: "400px" }}>
-                                {c.content ?? "—"}
-                            </td>
+                    {requests?.map((r: any) => (
+                        <tr key={r.id}>
+                            <td style={monoTdStyle}>{r.id}</td>
+                            <td style={monoTdStyle}>{r.image_id ?? "—"}</td>
+                            <td style={monoTdStyle}>{r.profile_id ?? "—"}</td>
                             <td style={tdStyle}>
-                                {c.created_datetime_utc ? new Date(c.created_datetime_utc).toLocaleDateString() : "—"}
+                                {r.created_datetime_utc ? new Date(r.created_datetime_utc).toLocaleDateString() : "—"}
                             </td>
                         </tr>
                     ))}
-                    {(!captions || captions.length === 0) && !error && (
+                    {(!requests || requests.length === 0) && !error && (
                         <tr>
-                            <td style={tdStyle} colSpan={4}>No captions found.</td>
+                            <td style={tdStyle} colSpan={4}>No caption requests found.</td>
                         </tr>
                     )}
                 </tbody>
@@ -89,4 +85,11 @@ const tdStyle: React.CSSProperties = {
     textAlign: "left",
     padding: "10px 14px",
     fontSize: "13px",
+};
+
+// Same as tdStyle but with monospace font for UUIDs
+const monoTdStyle: React.CSSProperties = {
+    ...tdStyle,
+    fontSize: "11px",
+    fontFamily: "monospace",
 };

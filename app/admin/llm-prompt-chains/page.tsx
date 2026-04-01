@@ -1,27 +1,28 @@
 import { createServiceClient } from "@/lib/supabase/service";
 
 /**
- * Captions page — READ only.
- * Displays the most recent 100 captions from the database.
+ * LLM Prompt Chains page — READ only.
+ * Prompt chains are the sequences of LLM calls used to generate captions.
+ * Each chain is associated with a humor flavor.
  */
-export default async function CaptionsPage() {
+export default async function LlmPromptChainsPage() {
     const admin = createServiceClient();
 
-    const { data: captions, error } = await admin
-        .from("captions")
+    const { data: chains, error } = await admin
+        .from("llm_prompt_chains")
         .select("*")
         .limit(100);
 
     return (
         <div>
-            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>Captions</h1>
+            <h1 style={{ fontSize: "32px", marginBottom: "8px" }}>LLM Prompt Chains</h1>
             <p style={{ color: "var(--muted)", marginBottom: "20px" }}>
-                Showing up to 100 captions (read-only). Total shown: {captions?.length ?? 0}
+                Read-only view of prompt chain configurations. Showing {chains?.length ?? 0} rows.
             </p>
 
             {error && (
                 <p style={{ color: "var(--danger)", marginBottom: "16px" }}>
-                    Error loading captions: {error.message}
+                    Error: {error.message}
                 </p>
             )}
 
@@ -29,31 +30,23 @@ export default async function CaptionsPage() {
                 <thead>
                     <tr>
                         <th style={thStyle}>ID</th>
-                        <th style={thStyle}>Image ID</th>
-                        <th style={thStyle}>Caption</th>
+                        <th style={thStyle}>Caption Request ID</th>
                         <th style={thStyle}>Created</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {captions?.map((c: any) => (
+                    {chains?.map((c: any) => (
                         <tr key={c.id}>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.id}
-                            </td>
-                            <td style={{ ...tdStyle, fontSize: "11px", fontFamily: "monospace" }}>
-                                {c.image_id}
-                            </td>
-                            <td style={{ ...tdStyle, maxWidth: "400px" }}>
-                                {c.content ?? "—"}
-                            </td>
+                            <td style={monoTdStyle}>{c.id}</td>
+                            <td style={monoTdStyle}>{c.caption_request_id ?? "—"}</td>
                             <td style={tdStyle}>
                                 {c.created_datetime_utc ? new Date(c.created_datetime_utc).toLocaleDateString() : "—"}
                             </td>
                         </tr>
                     ))}
-                    {(!captions || captions.length === 0) && !error && (
+                    {(!chains || chains.length === 0) && !error && (
                         <tr>
-                            <td style={tdStyle} colSpan={4}>No captions found.</td>
+                            <td style={tdStyle} colSpan={3}>No prompt chains found.</td>
                         </tr>
                     )}
                 </tbody>
@@ -89,4 +82,10 @@ const tdStyle: React.CSSProperties = {
     textAlign: "left",
     padding: "10px 14px",
     fontSize: "13px",
+};
+
+const monoTdStyle: React.CSSProperties = {
+    ...tdStyle,
+    fontSize: "11px",
+    fontFamily: "monospace",
 };

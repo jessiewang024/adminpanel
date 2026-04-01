@@ -1,7 +1,14 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export async function requireSuperadmin() {
+/**
+ * requireAdmin() — used by the admin layout to protect all /admin routes.
+ *
+ * Checks:
+ *   1. Is the user logged in? If not, redirect to /login.
+ *   2. Is the user a superadmin? If not, redirect to /not-authorized.
+ */
+export async function requireAdmin() {
     const supabase = await createClient();
 
     const {
