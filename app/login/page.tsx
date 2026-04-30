@@ -20,8 +20,18 @@ export default function LoginPage() {
     };
 
     return (
-        <main style={{ padding: "40px", fontFamily: "Arial, sans-serif" }}>
-            <h1 style={{ fontSize: "32px", marginBottom: "16px" }}>Admin Login</h1>
+        <main
+            style={{
+                minHeight: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "40px",
+                fontFamily: "Arial, sans-serif",
+            }}
+        >
+            <h1 style={{ fontSize: "32px", marginBottom: "16px" }}>Welcome to Admin Panel !</h1>
             <p style={{ marginBottom: "20px" }}>
                 Please sign in with Google to continue.
             </p>
@@ -32,7 +42,7 @@ export default function LoginPage() {
                     padding: "12px 20px",
                     borderRadius: "8px",
                     border: "1px solid #ccc",
-                    background: "#111",
+                    background: "#5DADE2",
                     color: "white",
                     cursor: "pointer",
                 }}
