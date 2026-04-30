@@ -16,11 +16,11 @@ export async function createCaptionExample(formData: FormData) {
     const userId = await getCurrentUserId();
 
     const { error } = await admin.from("caption_examples").insert({
-        image_id: emptyToNull(formData.get("image_id")),
+        image_id: null,
         image_description: String(formData.get("image_description") || "").trim(),
         caption: String(formData.get("caption") || "").trim(),
         explanation: String(formData.get("explanation") || "").trim(),
-        priority: Number(formData.get("priority") || 0),
+        priority: 0,
         created_by_user_id: userId,
         modified_by_user_id: userId,
     });
@@ -37,18 +37,20 @@ export async function updateCaptionExample(formData: FormData) {
     const userId = await getCurrentUserId();
     const id = String(formData.get("id")).trim();
 
-    const { error } = await admin.from("caption_examples").update({
-        image_id: emptyToNull(formData.get("image_id")),
-        image_description: String(formData.get("image_description") || "").trim(),
-        caption: String(formData.get("caption") || "").trim(),
-        explanation: String(formData.get("explanation") || "").trim(),
-        priority: Number(formData.get("priority") || 0),
-        modified_by_user_id: userId,
-    }).eq("id", id);
+    const { error } = await admin
+        .from("caption_examples")
+        .update({
+            image_description: String(formData.get("image_description") || "").trim(),
+            caption: String(formData.get("caption") || "").trim(),
+            explanation: String(formData.get("explanation") || "").trim(),
+            modified_by_user_id: userId,
+        })
+        .eq("id", id);
 
     if (error) throw new Error(error.message);
 
     revalidatePath("/admin/caption-examples");
+    revalidatePath("/admin");
 }
 
 /** Deletes a caption example by ID. */

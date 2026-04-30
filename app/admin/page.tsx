@@ -34,6 +34,40 @@ function StatCard({ title, value, description }: StatCardProps) {
 }
 
 /**
+ * Counts every Supabase auth user by paging through all users.
+ * This avoids the old 1000-user limit from listUsers({ page: 1, perPage: 1000 }).
+ */
+async function countAllAuthUsers() {
+    const admin = createServiceClient();
+
+    const perPage = 1000;
+    let page = 1;
+    let total = 0;
+
+    while (true) {
+        const { data, error } = await admin.auth.admin.listUsers({
+            page,
+            perPage,
+        });
+
+        if (error) {
+            throw new Error(error.message);
+        }
+
+        const countThisPage = data.users.length;
+        total += countThisPage;
+
+        if (countThisPage < perPage) {
+            break;
+        }
+
+        page += 1;
+    }
+
+    return total;
+}
+
+/**
  * Admin Dashboard page.
  * Fetches counts from every table in the database and displays them
  * as stat cards so the admin can see an overview at a glance.
@@ -43,7 +77,7 @@ export default async function AdminPage() {
 
     // Fetch row counts from all tables in parallel for performance
     const [
-        { data: usersData },
+        authUsersCount,
         profilesRes,
         imagesRes,
         captionsRes,
@@ -59,7 +93,7 @@ export default async function AdminPage() {
         allowedDomainsRes,
         whitelistedEmailsRes,
     ] = await Promise.all([
-        admin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+        countAllAuthUsers(),
         admin.from("profiles").select("*", { count: "exact", head: true }),
         admin.from("images").select("*", { count: "exact", head: true }),
         admin.from("captions").select("*", { count: "exact", head: true }),
@@ -78,7 +112,7 @@ export default async function AdminPage() {
 
     // Build the stats array for rendering
     const stats = [
-        { title: "Auth Users", value: usersData?.users?.length ?? 0, description: "Total auth accounts" },
+        { title: "Auth Users", value: authUsersCount, description: "Total auth accounts" },
         { title: "Profiles", value: profilesRes.count ?? 0, description: "User profiles" },
         { title: "Images", value: imagesRes.count ?? 0, description: "Uploaded images" },
         { title: "Captions", value: captionsRes.count ?? 0, description: "Generated captions" },
