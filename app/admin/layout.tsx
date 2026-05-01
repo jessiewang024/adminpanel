@@ -5,7 +5,10 @@ import { LogoutButton } from "./logout-button";
 const navGroups = [
     {
         label: "Overview",
-        links: [{ href: "/admin", text: "Dashboard" }],
+        links: [
+            { href: "/admin", text: "Dashboard" },
+            { href: "/admin/statistics", text: "Statistics" },
+        ],
     },
     {
         label: "Users",

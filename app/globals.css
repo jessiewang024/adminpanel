@@ -65,7 +65,7 @@ body {
 
 .admin-sidebar {
     width: 240px;
-    background: #5DADE2;
+    background: var(--sidebar-bg);
     color: var(--sidebar-text);
     display: flex;
     flex-direction: column;
